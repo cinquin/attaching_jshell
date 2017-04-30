@@ -1,4 +1,4 @@
-#Attaching jshell#
+# Attaching jshell
 
 JShell is a very useful new tool in JDK 9 that allows for interactive use of Java in a
 "read-eval-print loop". It is obvious that JShell would be particularly well suited for
@@ -15,7 +15,7 @@ an already-running JVM (it starts a new JVM on the local host), although that
 This project provides a JShell execution engine that can attach to any already-running
 JVM, as long as that JVM has been started appropriately.
 
-##Example usage##
+## Example usage
 - Start the target JVM with
 `-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=XXXhostname:XXXport`
 (update `XXXhostname` and `XXXport` as appropriate) and call
@@ -36,17 +36,17 @@ executed first) and `run_jshell`. From the JShell instance, run for example
  String s = ExistingVMRemoteExecutionControl.theGoodsForTesting
 ```
 
-##Implementation notes##
+## Implementation notes
 The need to use the `ExistingVMRemoteExecutionControl` class from the target JVM stems
 from limitations in the Java Debug Interface (JDI). An alternative would be to use the
 JVM Tool Interface, which would require compiling platform-specific native binaries, or
 to use JDI in a more hackish way to get the JShell connection established.
 
-##Note on security##
+## Note on security
 Make sure that the debugging port created with the `-agentlib:jdwp` option shown above is
 not publicly exposed, as it can be exploited rather trivially for arbitrary code execution.
 
-##Limitations##
+## Limitations
 
 - Only one JShell instance can be connected to a target VM at any given time. This limitation
 could probably be lifted with some work.
