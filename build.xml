@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="jshell" default="all">
+  
+  
+  <property file="jshell.properties"/>
+  <!-- Uncomment the following property if no tests compilation is needed -->
+  <!-- 
+  <property name="skip.tests" value="true"/>
+   -->
+  
+  <!-- Compiler options -->
+  
+  <property name="compiler.debug" value="on"/>
+  <property name="compiler.generate.no.warnings" value="off"/>
+  <property name="compiler.args" value=""/>
+  <property name="compiler.max.memory" value="700m"/>
+  <patternset id="ignored.files">
+    <exclude name="**/CVS/**"/>
+    <exclude name="**/SCCS/**"/>
+    <exclude name="**/RCS/**"/>
+    <exclude name="**/rcs/**"/>
+    <exclude name="**/.DS_Store/**"/>
+    <exclude name="**/.svn/**"/>
+    <exclude name="**/.pyc/**"/>
+    <exclude name="**/.pyo/**"/>
+    <exclude name="**/*.pyc/**"/>
+    <exclude name="**/*.pyo/**"/>
+    <exclude name="**/.git/**"/>
+    <exclude name="**/*.hprof/**"/>
+    <exclude name="**/_svn/**"/>
+    <exclude name="**/.hg/**"/>
+    <exclude name="**/*~/**"/>
+    <exclude name="**/__pycache__/**"/>
+    <exclude name="**/*.rbc/**"/>
+    <exclude name="**/vssver.scc/**"/>
+    <exclude name="**/vssver2.scc/**"/>
+  </patternset>
+  <patternset id="library.patterns">
+    <include name="*.egg"/>
+    <include name="*.jar"/>
+    <include name="*.ear"/>
+    <include name="*.swc"/>
+    <include name="*.war"/>
+    <include name="*.ane"/>
+    <include name="*.zip"/>
+  </patternset>
+  <patternset id="compiler.resources">
+    <exclude name="**/?*.java"/>
+    <exclude name="**/?*.form"/>
+    <exclude name="**/?*.class"/>
+    <exclude name="**/?*.groovy"/>
+    <exclude name="**/?*.scala"/>
+    <exclude name="**/?*.flex"/>
+    <exclude name="**/?*.kt"/>
+    <exclude name="**/?*.clj"/>
+    <exclude name="**/?*.aj"/>
+  </patternset>
+  
+  <!-- Modules -->
+  
+  
+  <!-- Module jshell -->
+  
+  <dirname property="module.jshell.basedir" file="${ant.file}"/>
+  
+  
+  
+  <property name="compiler.args.jshell" value="-encoding UTF-8 -source 9 -target 9 ${compiler.args}"/>
+  
+  <property name="jshell.output.dir" value="build"/>
+  <property name="jshell.testoutput.dir" value="test"/>
+  
+  <path id="jshell.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="jshell.module.production.classpath"/>
+  
+  <path id="jshell.runtime.production.module.classpath">
+    <pathelement location="${jshell.output.dir}"/>
+  </path>
+  
+  <path id="jshell.module.classpath">
+    <pathelement location="${jshell.output.dir}"/>
+  </path>
+  
+  <path id="jshell.runtime.module.classpath">
+    <pathelement location="${jshell.testoutput.dir}"/>
+    <pathelement location="${jshell.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.jshell">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.jshell">
+    <patternset refid="excluded.from.module.jshell"/>
+  </patternset>
+  
+  <path id="jshell.module.sourcepath">
+    <dirset dir=".">
+      <include name="src"/>
+      <include name="src/main/java"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.jshell" depends="compile.module.jshell.production,compile.module.jshell.tests" description="Compile module jshell"/>
+  
+  <target name="compile.module.jshell.production" description="Compile module jshell; production classes">
+    <mkdir dir="${jshell.output.dir}"/>
+    <javac destdir="${jshell.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true">
+      <compilerarg line="${compiler.args.jshell}"/>
+      <bootclasspath refid="jshell.module.bootclasspath"/>
+      <classpath refid="jshell.module.production.classpath"/>
+      <src refid="jshell.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.jshell"/>
+    </javac>
+    
+  </target>
+  
+  <target name="compile.module.jshell.tests" depends="compile.module.jshell.production" description="compile module jshell; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.jshell" description="cleanup module">
+    <delete dir="${jshell.output.dir}"/>
+    <delete dir="${jshell.testoutput.dir}"/>
+  </target>
+  
+  <target name="init" description="Build initialization">
+    <!-- Perform any build initialization in this target -->
+  </target>
+  
+  <target name="clean" depends="clean.module.jshell" description="cleanup all"/>
+  
+  <target name="build.modules" depends="init, clean, compile.module.jshell" description="build all modules"/>
+  
+  <target name="init.artifacts">
+    <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
+    <property name="artifact.output.attaching_jshell" value="lib"/>
+    <mkdir dir="${artifacts.temp.dir}"/>
+    <property name="temp.jar.path.attaching_jshell.jar" value="${artifacts.temp.dir}/attaching_jshell.jar"/>
+  </target>
+  
+  <target name="artifact.attaching_jshell" depends="init.artifacts, compile.module.jshell" description="Build &#39;attaching_jshell&#39; artifact">
+    <property name="artifact.temp.output.attaching_jshell" value="${artifacts.temp.dir}/attaching_jshell"/>
+    <mkdir dir="${artifact.temp.output.attaching_jshell}"/>
+    <jar destfile="${temp.jar.path.attaching_jshell.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
+      <zipfileset dir="${jshell.output.dir}"/>
+      <zipfileset dir="${basedir}/src/main/resources/META-INF" prefix="META-INF"/>
+    </jar>
+    <copy file="${temp.jar.path.attaching_jshell.jar}" tofile="${artifact.temp.output.attaching_jshell}/attaching_jshell.jar"/>
+  </target>
+  
+  <target name="build.all.artifacts" depends="artifact.attaching_jshell" description="Build all artifacts">
+    <mkdir dir="${artifact.output.attaching_jshell}"/>
+    <copy todir="${artifact.output.attaching_jshell}">
+      <fileset dir="${artifact.temp.output.attaching_jshell}"/>
+    </copy>
+    
+    <!-- Delete temporary files -->
+    <delete dir="${artifacts.temp.dir}"/>
+  </target>
+  
+  <target name="all" depends="build.modules, build.all.artifacts" description="build all"/>
+</project>
